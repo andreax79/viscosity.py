@@ -1,5 +1,4 @@
 # viscosity.py
-Control Viscosity.app (macOS) from command line
 
 Control [Viscosity.app](https://www.sparklabs.com/viscosity/) (macOS) from command line
 

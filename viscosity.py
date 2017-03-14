@@ -26,6 +26,8 @@ import subprocess
 import re
 import sys
 import argparse
+import time
+import itertools
 
 __all__ = [
     'get_connections',
@@ -64,6 +66,8 @@ end tell
 CONNECT = "tell application \"Viscosity\" to connect \"%s\""
 
 DISCONNECT = "tell application \"Viscosity\" to disconnect \"%s\""
+
+SPINNER = itertools.cycle(['-', '\\', '|', '/'])
 
 def get_connections(args):
     output = subprocess.check_output([ 'osascript', '-e', GET_CONNECTIONS ])
@@ -104,10 +108,10 @@ def show_status(args):
         print('%s: missing argument connection' % (sys.argv[0]))
         return 2
     connection = get_connection(args)
-    print(connection[2])
     if not connection:
         print('%s: connection %s not found' % (sys.argv[0], args.connection or ''))
         return 1
+    print(connection[2])
     if connection[2] == 'Connected':
         return 10
     elif connection[2] == 'Disconnected':
@@ -129,8 +133,20 @@ def connect(args):
         print('%s: already connected to %s' % (sys.argv[0], connection[1]))
         return 1
     subprocess.check_output([ 'osascript', '-e', CONNECT % connection[1] ])
-    print('Connecting to %s...' % connection[1])
-    return 0
+    sys.stdout.write('Connecting to %s...  ' % connection[1])
+    sys.stdout.flush()
+    while True:
+        sys.stdout.write('\b')
+        sys.stdout.write(SPINNER.next())
+        sys.stdout.flush()
+
+        time.sleep(0.1)
+        connection = get_connection(args)
+        if connection[2] != 'Connecting':
+            sys.stdout.write('\b \n')
+            sys.stdout.flush()
+            print(connection[2])
+            return 0
 
 def disconnect(args):
     if not args.connection:

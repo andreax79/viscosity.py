@@ -70,8 +70,8 @@ DISCONNECT = "tell application \"Viscosity\" to disconnect \"%s\""
 SPINNER = itertools.cycle(['-', '\\', '|', '/'])
 
 def get_connections(args):
-    output = subprocess.check_output([ 'osascript', '-e', GET_CONNECTIONS ])
-    return [(y[0], y[1][0], y[1][1]) for y in enumerate(sorted([x.split(b'|') for x in re.split(b',\s*', output.strip(b'\n'))]), start=1)]
+    output = subprocess.check_output([ 'osascript', '-e', GET_CONNECTIONS ]).decode('utf-8')
+    return [(y[0], y[1][0], y[1][1]) for y in enumerate(sorted([x.split('|') for x in re.split(',\s*', output.strip('\n'))]), start=1)]
 
 def show_connections(args):
     if not args.quiet:
@@ -137,7 +137,7 @@ def connect(args):
     sys.stdout.flush()
     while True:
         sys.stdout.write('\b')
-        sys.stdout.write(SPINNER.next())
+        sys.stdout.write(next(SPINNER))
         sys.stdout.flush()
 
         time.sleep(0.1)
